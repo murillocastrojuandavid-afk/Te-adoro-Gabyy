@@ -1,0 +1,180 @@
+# Te-adoro-Gabyy
+Amor
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Galaxy IA Ultra</title>
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: black;
+}
+canvas { display:block; }
+</style>
+</head>
+<body>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script>
+let scene, camera, renderer;
+let galaxyGroup;
+let isDragging = false;
+let prevX = 0, prevY = 0;
+
+init();
+animate();
+
+function init(){
+    scene = new THREE.Scene();
+
+    camera = new THREE.PerspectiveCamera(
+        60,
+        window.innerWidth/window.innerHeight,
+        0.1,
+        5000
+    );
+    camera.position.z = 800;
+
+    renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setClearColor(0x000000,1);
+    document.body.appendChild(renderer.domElement);
+
+    galaxyGroup = new THREE.Group();
+    scene.add(galaxyGroup);
+
+    // 🌟 ILUMINACIÓN PREMIUM
+    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambient);
+
+    const pointLight = new THREE.PointLight(0x88ccff, 3, 3000);
+    pointLight.position.set(0,0,500);
+    scene.add(pointLight);
+
+    const glowLight = new THREE.PointLight(0xff88ff, 2, 3000);
+    glowLight.position.set(0,0,-500);
+    scene.add(glowLight);
+
+    // ✨ ESTRELLAS
+    const starGeo = new THREE.BufferGeometry();
+    const starCount = 12000;
+    const starPos = [];
+
+    for(let i=0;i<starCount;i++){
+        let x = (Math.random()-0.5)*3000;
+        let y = (Math.random()-0.5)*3000;
+        let z = (Math.random()-0.5)*3000;
+        starPos.push(x,y,z);
+    }
+
+    starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos,3));
+    const starMat = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 2,
+        transparent:true,
+        opacity:0.8
+    });
+
+    const stars = new THREE.Points(starGeo, starMat);
+    galaxyGroup.add(stars);
+
+    // 🌀 NÚCLEO GALÁCTICO
+    const coreGeo = new THREE.SphereGeometry(60,64,64);
+    const coreMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0x88ccff,
+        emissiveIntensity: 2,
+        roughness: 0,
+        metalness: 1
+    });
+    const core = new THREE.Mesh(coreGeo, coreMat);
+    galaxyGroup.add(core);
+
+    // 📝 PALABRAS LIMPIAS
+    const words = [
+        "ENERGIA","COSMOS","LUZ","MENTE","ALMA",
+        "VISION","CREACION","INFINITO","ORIGEN","UNIVERSO"
+    ];
+
+    words.forEach((text,i)=>{
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 512;
+        canvas.height = 256;
+
+        ctx.fillStyle="rgba(0,0,0,0)";
+        ctx.fillRect(0,0,512,256);
+
+        ctx.font="bold 64px Arial";
+        ctx.textAlign="center";
+        ctx.textBaseline="middle";
+        ctx.fillStyle="white";
+        ctx.shadowColor="#88ccff";
+        ctx.shadowBlur=20;
+        ctx.fillText(text,256,128);
+
+        const texture = new THREE.CanvasTexture(canvas);
+        const mat = new THREE.SpriteMaterial({map:texture, transparent:true});
+        const sprite = new THREE.Sprite(mat);
+
+        const r = 300 + Math.random()*400;
+        const angle = Math.random()*Math.PI*2;
+        const height = (Math.random()-0.5)*400;
+
+        sprite.position.set(
+            Math.cos(angle)*r,
+            height,
+            Math.sin(angle)*r
+        );
+
+        sprite.scale.set(120,60,1);
+        galaxyGroup.add(sprite);
+    });
+
+    // 👉 CONTROL TOTAL CON DEDO
+    renderer.domElement.addEventListener("pointerdown", e=>{
+        isDragging = true;
+        prevX = e.clientX;
+        prevY = e.clientY;
+    });
+
+    renderer.domElement.addEventListener("pointermove", e=>{
+        if(!isDragging) return;
+        let dx = e.clientX - prevX;
+        let dy = e.clientY - prevY;
+
+        galaxyGroup.rotation.y += dx * 0.002;
+        galaxyGroup.rotation.x += dy * 0.002;
+
+        prevX = e.clientX;
+        prevY = e.clientY;
+    });
+
+    renderer.domElement.addEventListener("pointerup", ()=>{
+        isDragging = false;
+    });
+
+    renderer.domElement.addEventListener("pointerleave", ()=>{
+        isDragging = false;
+    });
+
+    window.addEventListener("resize", ()=>{
+        camera.aspect = window.innerWidth/window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+}
+
+function animate(){
+    requestAnimationFrame(animate);
+    renderer.render(scene,camera);
+}
+</script>
+
+</body>
+</html>
